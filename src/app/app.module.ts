@@ -1,18 +1,36 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { OnlyDirective } from './directives/only.directive';
 
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FlightsComponent } from './components/flights/flights.component';
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AppRoutingModule } from './app-routing.module';
+import { MaterialModule } from './core/material/material.module';
+import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
+import { TooltipModule } from 'ng2-tooltip-directive';
+import { ThemePalette } from '@angular/material/core';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [AppComponent, FlightsComponent, OnlyDirective],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    NgIdleKeepaliveModule.forRoot(),
+    TooltipModule,
+    MatExpansionModule,
   ],
+  exports: [OnlyDirective],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AppModule { }
+export class AppModule {}
