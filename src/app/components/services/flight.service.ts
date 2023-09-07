@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/environment';
 import { Flight } from '../../models/flight';
 import { Observable } from 'rxjs';
+import { Journey } from 'src/app/models/journey';
 
 @Injectable({
     providedIn: 'root'
@@ -13,7 +14,7 @@ export class FlightService {
 
     constructor(private http: HttpClient) { }
 
-    getFlight(): any {
-        return this.http.get<Flight>(this.api);
+    getFlight() {
+        return this.http.get<Flight[]>(this.api);
     }
 }

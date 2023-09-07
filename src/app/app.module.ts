@@ -13,9 +13,11 @@ import { MaterialModule } from './core/material/material.module';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 import { TooltipModule } from 'ng2-tooltip-directive';
 import { ThemePalette } from '@angular/material/core';
+import { FormularioComponent } from './components/flights/formulario/formulario.component';
+import { TablaComponent } from './components/flights/tabla/tabla.component';
 
-@NgModule({
-  declarations: [AppComponent, FlightsComponent, OnlyDirective],
+  @NgModule({
+  declarations: [AppComponent, FlightsComponent, OnlyDirective, FormularioComponent, TablaComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -29,7 +31,7 @@ import { ThemePalette } from '@angular/material/core';
     MatExpansionModule,
   ],
   exports: [OnlyDirective],
-  providers: [],
+  providers: [FormularioComponent, TablaComponent],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

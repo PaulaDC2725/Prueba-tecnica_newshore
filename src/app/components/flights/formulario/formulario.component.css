@@ -1,0 +1,9 @@
+/* estilos formulario */
+.form-control {
+  /* validación para unicamente registrar datos en mayuscula */
+  text-transform: uppercase !important;
+}
+form {
+  justify-items: center;
+  margin-top: 3em;
+}

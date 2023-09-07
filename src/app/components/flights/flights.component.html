@@ -1,6 +1,9 @@
 <!-- Div header-->
 <div class="header col-xs-12 col-sm-12 col-md-12 col-lg-12 col-12" id="header">
-  <img src="../../../assets//img/851eyhmAs9vvzzBlC0kvX6gNu8u1628832207734_200x200.png" alt="logo Newshore">
+  <img
+    src="../../../assets//img/851eyhmAs9vvzzBlC0kvX6gNu8u1628832207734_200x200.png"
+    alt="logo Newshore"
+  />
 </div>
 <!-- fin div header -->
 <div class="pagina" id="pagina">
@@ -9,133 +12,39 @@
     <!-- apartado para el formulario de consulta -->
     <mat-expansion-panel [togglePosition]="'before'" [expanded]="true">
       <mat-expansion-panel-header
-        [ngClass]="{'bg-success':form.valid && !invalidField(), 'bg-warning':form.invalid, 'bg-danger': invalidField()}">
-        <mat-panel-title>
-          Formulario búsqueda
-        </mat-panel-title>
+        [ngClass]="{
+          'bg-success': form.valid && !invalidFunction,
+          'bg-warning': form.invalid,
+          'bg-danger': invalidFunction
+        }"
+      >
+        <mat-panel-title> Formulario búsqueda </mat-panel-title>
         <i class="fa-solid fa-check"></i>
       </mat-expansion-panel-header>
 
-      <div class="content">
-        <form [formGroup]="form">
-          <div class="row">
-            <div class="col-3">
-              <mat-form-field color="primary">
-                <mat-label class="form-label">Origen</mat-label>
-                <input type="text" matInput class="form-control" formControlName="origin" maxlength="3"
-                  appOnly="Letters">
-              </mat-form-field>
-              <mat-error *ngIf="form.value.origin != '' && form.value.destination != '' ? invalidField():''">Los
-                campos son iguales
-              </mat-error>
-            </div>
-
-            <div class="col-3">
-              <mat-form-field color="primary">
-                <mat-label class="form-label">Destino</mat-label>
-                <input type="text" matInput class="form-control" formControlName="destination" maxlength="3"
-                  appOnly="Letters">
-              </mat-form-field>
-
-            </div>
-
-            <div *ngIf="journey && viewInfo" class="col-3">
-              <mat-form-field>
-                <mat-label class="form-label">Tipo de moneda</mat-label>
-                <mat-select formControlName="currency" placeholder="Seleccione una opción">
-                  <mat-option value="1">USD</mat-option>
-                  <mat-option value="2">COP</mat-option>
-                  <mat-option value="3">EUR</mat-option>
-                </mat-select>
-              </mat-form-field>
-
-            </div>
-            <div class="col-3">
-              <button type="submit" class="btn btn-danger" [disabled]="form.invalid || invalidField()"
-                (click)="calculateRoute()">
-                Calcular ruta
-              </button>
-
-            </div>
-          </div>
-        </form>
-      </div>
+      <app-formulario (viewInfo)="getViewInfo($event)" (journey)="getJourney($event)" (totalPrice)="getTotalPrice($event)" (firstPrice)="getFirstPrice($event)" (secondPrice)="getSecondPrice($event)"></app-formulario>
+      {{ viewInfo }}
       <!-- fin apartado formulario de consulta -->
     </mat-expansion-panel>
-    <mat-expansion-panel [togglePosition]="'before'" *ngIf="journey && viewInfo" [expanded]="true" id="accordionPanel">
+    <mat-expansion-panel
+      [togglePosition]="'before'"
+      *ngIf="journey && viewInfo"
+      [expanded]="true"
+      id="accordionPanel"
+    >
       <mat-expansion-panel-header>
-        <mat-panel-title>
-          Información de vuelo
-        </mat-panel-title>
+        <mat-panel-title> Información de vuelo </mat-panel-title>
         <i class="fa-solid fa-check"></i>
       </mat-expansion-panel-header>
-      <div class="content">
-        <!-- tabla general con la información principal del destino y origen deseados -->
-        <div class="tablas">
-          <table class="mat-elevation-z8 tabla1" id="tabla">
-            <tr>
-              <th>Origen</th>
-              <td>{{journey.origin}}</td>
-            </tr>
-            <tr>
-              <th>Destino</th>
-              <td>{{journey.destination}}</td>
-            </tr>
-            <tr>
-              <th>Precio</th>
-              <td>{{totalPrice}}</td>
-            </tr>
-            <tr *ngIf="!journey.flight[1]">
-              <th>Numero de vuelo</th>
-              <td>{{journey.flight[0].transport.flightNumber}}</td>
-            </tr>
-          </table>
-          <!-- fin tabla -->
-          <!-- Segunda tabla en el caso de haber más de un vuelo -->
-          <table *ngIf="journey.flight[1]" class="mat-elevation-z8" id="tabla">
-            <thead>
-              <tr>
-                <th>
-                  #
-                </th>
-                <th>Punto de partida</th>
-                <th>Punto de llegada</th>
-                <th>Precio</th>
-                <th>Compañía aérea</th>
-                <th>Número del vuelo</th>
-              </tr>
-            </thead>
-            <tbody *ngIf="journey.flight[1]">
-              <tr *ngFor="let data of journey.flight; let i = index">
-                <td style="font-weight: bold;">
-                  {{i == 0 ? 'Primer vuelo: ': 'Segundo vuelo: '}}
-                </td>
-                <td>
-                  {{data.origin}}
-                </td>
-                <td>
-                  {{data.destination}}
-                </td>
-                <td>
-                  {{i == 0 ? firstPrice : secondPrice}}
-                </td>
-                <td>
-                  {{data.transport.flightCarrier}}
-                </td>
-                <td>
-                  {{data.transport.flightNumber}}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <!-- Fin tabla -->
-        </div>
-      </div>
+      <app-tabla [journey]="journey" [viewInfo]="viewInfo" [totalPrice]="totalPrice" [firstPrice]="firstPrice" [secondPrice]="secondPrice"></app-tabla>
     </mat-expansion-panel>
   </mat-acordion>
   <!-- fin implementacion mat-accordion -->
 </div>
 
 <div class="footer col-xs-12 col-sm-12 col-md-12 col-lg-12 col-12" id="footer">
-  <img src="../../../assets//img/851eyhmAs9vvzzBlC0kvX6gNu8u1628832207734_200x200.png" alt="logo Newshore">
+  <img
+    src="../../../assets//img/851eyhmAs9vvzzBlC0kvX6gNu8u1628832207734_200x200.png"
+    alt="logo Newshore"
+  />
 </div>
