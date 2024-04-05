@@ -1,27 +1,24 @@
 <div class="content">
   <form [formGroup]="form">
     <div class="row">
-      <div class="col-3">
+      <div class="col-md-3 col-sm-6">
         <mat-form-field color="primary">
           <mat-label class="form-label">Origen</mat-label>
-          <input type="text" matInput class="form-control" formControlName="origin" maxlength="3"
-            appOnly="Letters">
+          <input type="text" matInput class="form-control" formControlName="origin" maxlength="3" appOnly="Letters">
         </mat-form-field>
-        <mat-error *ngIf="form.value.origin != '' && form.value.destination != '' ? invalidField():''">Los
-          campos son iguales
-        </mat-error>
+        <mat-error *ngIf="form.value.origin != '' && form.value.destination != '' ? invalidField():''">Los campos son
+          iguales</mat-error>
       </div>
 
-      <div class="col-3">
+      <div class="col-md-3 col-sm-6">
         <mat-form-field color="primary">
           <mat-label class="form-label">Destino</mat-label>
           <input type="text" matInput class="form-control" formControlName="destination" maxlength="3"
             appOnly="Letters">
         </mat-form-field>
-
       </div>
 
-      <div *ngIf="journey && viewInformation" class="col-3">
+      <div *ngIf="journey && viewInformation" class="col-md-3 col-sm-6">
         <mat-form-field>
           <mat-label class="form-label">Tipo de moneda</mat-label>
           <mat-select formControlName="currency" placeholder="Seleccione una opción">
@@ -30,14 +27,13 @@
             <mat-option value="3">EUR</mat-option>
           </mat-select>
         </mat-form-field>
-
       </div>
-      <div class="col-3">
+
+      <div class="col-md-3 col-sm-6">
         <button type="submit" class="btn btn-danger" [disabled]="form.invalid || invalidField()"
           (click)="calculateRoute()">
           Calcular ruta
         </button>
-
       </div>
     </div>
   </form>

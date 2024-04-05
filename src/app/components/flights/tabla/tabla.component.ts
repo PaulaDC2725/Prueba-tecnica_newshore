@@ -5,11 +5,11 @@ import { Journey } from 'src/app/models/journey';
 @Component({
   selector: 'app-tabla',
   templateUrl: './tabla.component.html',
-  styleUrls: ['./tabla.component.css']
+  styleUrls: ['./tabla.component.css'],
 })
 export class TablaComponent {
   @Input() flightList: FlightList[] = [];
-  @Input()journey!: Journey;
+  @Input() journey!: Journey;
 
   //Variables
   @Input() arrivalStations: string[] = [];
@@ -19,4 +19,8 @@ export class TablaComponent {
   @Input() totalPrice: number = 0;
   @Input() firstPrice: number = 0;
   @Input() secondPrice: number = 0;
+
+  constructor() {
+    console.log(this.journey);
+  }
 }

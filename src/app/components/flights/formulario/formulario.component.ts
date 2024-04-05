@@ -9,22 +9,17 @@ import { FlightsComponent } from '../flights.component';
 @Component({
   selector: 'app-formulario',
   templateUrl: './formulario.component.html',
-  styleUrls: ['./formulario.component.css']
+  styleUrls: ['./formulario.component.css'],
 })
 export class FormularioComponent {
-
   @Output() flightList: FlightList[] = [];
-  @Output()journey: EventEmitter<Journey> = new EventEmitter<Journey>();
+  @Output() journey: EventEmitter<Journey> = new EventEmitter<Journey>();
 
   //Variables
   @Output() arrivalStations: string[] = [];
   @Output() departureStations: string[] = [];
 
   @Output() viewInfo: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() totalPrice: EventEmitter<number> = new EventEmitter<number>();
-  @Output() firstPrice: EventEmitter<number> = new EventEmitter<number>();
-  @Output() secondPrice: EventEmitter<number> = new EventEmitter<number>();
-
   valueFirstPrice: number = 0;
   valueSecondPrice: number = 0;
   viewTotalPrice: number = 0;
@@ -36,11 +31,10 @@ export class FormularioComponent {
     origin: ['', [Validators.required, Validators.minLength(3)]], //Validaciones cantidad de caracteres permitidos y obligatoriedad
     destination: ['', [Validators.required, Validators.minLength(3)]],
     currency: [''],
-
   });
   componentFligth: FlightsComponent;
   constructor(private fb: FormBuilder, private serviceFlight: FlightService) {}
-  ngOnInit(){
+  ngOnInit() {
     this.validateCurrency();
     this.getInfo();
   }
@@ -58,104 +52,118 @@ export class FormularioComponent {
   }
   // calcular rutas
   calculateRoute() {
-    //declaración variables
-    this.viewInformation= false;
+    // Declaración de variables
+    this.viewInformation = false;
     this.viewInfo.emit(this.viewInformation);
     this.form.controls.currency.setValue('');
-    let origin = this.form.value.origin.toUpperCase();
-    let destination = this.form.value.destination.toUpperCase();
-    let newOrigins: string[] = [];
-    let possibleFlights: FlightList[] = [];
 
-    //pushear variables para lograr identifiacar que los datos ingresados en el formulario existan en el servicio
-    for (let i in this.flightList) {
-      this.arrivalStations.push(this.flightList[i].arrivalStation);
-      this.departureStations.push(this.flightList[i].departureStation);
-    }
+    const origin = this.form.value.origin.toUpperCase();
+    const destination = this.form.value.destination.toUpperCase();
 
-    //validación datos existentes
-    if (
-      this.arrivalStations.includes(origin) &&
-      this.departureStations.includes(destination)
-    ) {
-      for (let i in this.flightList) {
-        //Recorrer los arrays para identificar si el vuelo es directo o no
+    const findRoute = (
+      currentOrigin: string,
+      currentDestination: string,
+      currentJourney: Journey,
+      visitedStations: Set<string>
+    ): Journey | null => {
+      visitedStations.add(currentOrigin); // Marcar la estación actual como visitada
+
+      const directFlight = this.flightList.find(
+        (flight) =>
+          flight.departureStation === currentOrigin &&
+          flight.arrivalStation === currentDestination
+      );
+
+      if (directFlight) {
+        currentJourney.price += directFlight.price;
+        currentJourney.flight.push({
+          origin: directFlight.departureStation,
+          destination: directFlight.arrivalStation,
+          prices: directFlight.price,
+          transport: {
+            flightCarrier: directFlight.flightCarrier,
+            flightNumber: directFlight.flightNumber,
+          },
+        });
+        return currentJourney;
+      }
+
+      for (const flight of this.flightList) {
         if (
-          this.flightList[i].departureStation === origin &&
-          this.flightList[i].arrivalStation === destination
+          flight.departureStation === currentOrigin &&
+          !visitedStations.has(flight.arrivalStation) // Evitar ciclos
         ) {
-          this.viewTotalPrice = this.flightList[i].price;
-          this.journeyValue = {
-            origin,
-            destination,
-            price: this.flightList[i].price,
-            flight: [
-              {
-                origin: this.flightList[i].departureStation,
-                destination: this.flightList[i].arrivalStation,
-                prices: this.flightList[i].price,
-                transport: {
-                  flightCarrier: this.flightList[i].flightCarrier,
-                  flightNumber: this.flightList[i].flightNumber,
+          const intermediateJourney = findRoute(
+            flight.arrivalStation,
+            currentDestination,
+            {
+              origin,
+              destination,
+              price: currentJourney.price + flight.price,
+              flight: [
+                ...currentJourney.flight,
+                {
+                  origin: flight.departureStation,
+                  destination: flight.arrivalStation,
+                  prices: flight.price,
+                  transport: {
+                    flightCarrier: flight.flightCarrier,
+                    flightNumber: flight.flightNumber,
+                  },
                 },
-              },
-            ],
-          };
-          this.totalPrice.emit(this.viewTotalPrice)
-          this.journey.emit(this.journeyValue);
-          this.viewInformation= true;
-          this.viewInfo.emit(this.viewInformation);
-          break;
-        } else if (
-          this.flightList[i].departureStation === destination &&
-          this.flightList[i].arrivalStation === origin
-        ) {
-          this.viewTotalPrice = this.flightList[i].price;
-          this.journeyValue = {
-            origin,
-            destination,
-            price: this.flightList[i].price,
-            flight: [
-              {
-                origin: this.flightList[i].departureStation,
-                destination: this.flightList[i].arrivalStation,
-                prices: this.flightList[i].price,
-                transport: {
-                  flightCarrier: this.flightList[i].flightCarrier,
-                  flightNumber: this.flightList[i].flightNumber,
-                },
-              },
-            ],
-          };
-          this.totalPrice.emit(this.viewTotalPrice)
-          this.viewInformation= true;
-          this.viewInfo.emit(this.viewInformation);
-          break;
-        } else if (this.flightList[i].departureStation === destination) {
-          // en caso de no ser directo guarda en la variable possibleFlights y newOrigins la información que coincide con el destino del formulario
-          possibleFlights.push(this.flightList[i]);
-          newOrigins.push(this.flightList[i].arrivalStation);
+              ],
+            },
+            visitedStations
+          );
+
+          if (intermediateJourney) {
+            return intermediateJourney;
+          }
         }
       }
-      //Posteriormete de no ser directo el vuelo se llama la funcion this.getAvailableRoutes() para validar coincidencias y obtener el vuelo adicional
-      !this.viewInformation
-        ? this.getAvailableRoutes(
-            newOrigins,
-            origin,
-            destination,
-            possibleFlights
-          )
-        : '';
-    } else {
-      // En caso de que los datos ingresados en el formulario no existan en el servicio se mostrará la siguiente alerta
+
+      return null;
+    };
+
+    const visitedStations = new Set<string>();
+    const resultJourney = findRoute(
+      origin,
+      destination,
+      {
+        origin,
+        destination,
+        price: 0,
+        flight: [],
+      },
+      visitedStations
+    );
+
+    if (resultJourney) {
+      this.journeyValue = resultJourney;
+      this.journey.emit(this.journeyValue);
+      this.viewInformation = true;
+      this.viewInfo.emit(this.viewInformation);
+    } else if (
+      visitedStations.has(origin) ||
+      visitedStations.has(destination)
+    ) {
+      // Si el origen o el destino no existen en el servicio, mostrar la alerta
       Swal.fire({
         icon: 'error',
-        title: 'No existe ruta para ese origin y/o destination',
+        title: 'No existe ruta para ese origen y/o destino',
       });
-      this.viewInformation= false;
+      this.viewInformation = false;
+      this.viewInfo.emit(this.viewInformation);
+    } else {
+      // Si se han visitado estaciones (existen opciones), pero no hay una ruta válida
+      Swal.fire({
+        icon: 'error',
+        title: 'No es posible calcular esta ruta',
+      });
+      this.viewInformation = false;
       this.viewInfo.emit(this.viewInformation);
     }
-    //Se realiza el calculo del tamaño de los componentes
+
     this.componentFligth.calculationSize();
   }
 
@@ -189,7 +197,8 @@ export class FormularioComponent {
         }
       });
     }
-    if (finalRoute.length > 1) { //En caso de ser válido se construye la variable Journey en donde se imprimirá la información en la visual
+    if (finalRoute.length > 1) {
+      //En caso de ser válido se construye la variable Journey en donde se imprimirá la información en la visual
       this.viewTotalPrice = finalRoute[0].price + finalRoute[1].price;
       this.valueFirstPrice = finalRoute[0].price;
       this.valueSecondPrice = finalRoute[1].price;
@@ -218,13 +227,11 @@ export class FormularioComponent {
           },
         ],
       };
-      this.totalPrice.emit(this.viewTotalPrice)
-      this.firstPrice.emit(this.valueFirstPrice)
-      this.secondPrice.emit(this.valueSecondPrice)
       this.journey.emit(this.journeyValue);
-      this.viewInformation= true;
+      this.viewInformation = true;
       this.viewInfo.emit(this.viewInformation);
-    } else if (finalRoute.length == 1) { //En caso de no encontrar un vuelo adicional, se construye la variable journey con la info del vuelo directo
+    } else if (finalRoute.length == 1) {
+      //En caso de no encontrar un vuelo adicional, se construye la variable journey con la info del vuelo directo
       this.viewTotalPrice = finalRoute[0].price;
       this.journeyValue = {
         origin,
@@ -242,71 +249,66 @@ export class FormularioComponent {
           },
         ],
       };
-      this.totalPrice.emit(this.viewTotalPrice)
       this.journey.emit(this.journeyValue);
-      this.viewInformation= true;
-      this.viewInfo.emit(this.viewInformation)//Variable que permite visualizar la información en la página
-    } else { //En caso de no existir ninguna ruta directa ni indirecta arrojará esta alerta
+      this.viewInformation = true;
+      this.viewInfo.emit(this.viewInformation); //Variable que permite visualizar la información en la página
+    } else {
+      //En caso de no existir ninguna ruta directa ni indirecta arrojará esta alerta
       Swal.fire({
         icon: 'error',
         title: 'No es posible calcular esta ruta',
       });
-      this.totalPrice.emit(this.viewTotalPrice)
       this.journey.emit(this.journeyValue);
-      this.viewInformation= false;
+      this.viewInformation = false;
       this.viewInfo.emit(this.viewInformation);
     }
-    console.log(this.viewInformation)
+    console.log(this.viewInformation);
     this.componentFligth.calculationSize();
   }
 
-  //Funcion para validad el tipo de moneda seleccionado
+  // Función para validar el tipo de moneda seleccionado
   validateCurrency() {
-    this.form.controls.currency.valueChanges.subscribe((resp) => {
+    this.form.get('currency')?.valueChanges.subscribe((resp) => {
       setTimeout(() => {
-        let idCurrency = this.form.value.currency;
-        this.currencyType(idCurrency);
+        this.currencyType(resp); // Llamar la función currencyType con el nuevo valor
       }, 100);
     });
   }
+
+  // Función para actualizar los precios según el tipo de moneda
+  // Función para actualizar los precios según el tipo de moneda
   currencyType(id: any) {
-    let value = id;
+    const value = id;
 
     switch (value) {
       case '1':
-        this.viewTotalPrice = this.journeyValue.price;
-        this.valueFirstPrice = this.journeyValue.flight[0].prices;
-        this.valueSecondPrice =
-          this.journeyValue.flight.length > 1 ? this.journeyValue.flight[1].prices : 0;
-          this.totalPrice.emit(this.viewTotalPrice)
-          this.firstPrice.emit(this.valueFirstPrice)
-          this.secondPrice.emit(this.valueSecondPrice)
+        this.viewTotalPrice = this.calculatePrice(1);
         break;
       case '2':
-        this.viewTotalPrice = this.journeyValue.price * 4900;
-        this.valueFirstPrice = this.journeyValue.flight[0].prices * 4900;
-        this.valueSecondPrice =
-          this.journeyValue.flight.length > 1
-            ? this.journeyValue.flight[1].prices * 4900
-            : 0;
-            this.totalPrice.emit(this.viewTotalPrice)
-            this.firstPrice.emit(this.valueFirstPrice)
-            this.secondPrice.emit(this.valueSecondPrice)
+        this.viewTotalPrice = this.calculatePrice(4000);
         break;
       case '3':
-        this.viewTotalPrice = this.journeyValue.price * 1.02;
-        this.valueFirstPrice = this.journeyValue.flight[0].prices * 1.02;
-        this.valueSecondPrice =
-          this.journeyValue.flight.length > 1
-            ? this.journeyValue.flight[1].prices * 1.02
-            : 0;
-            this.totalPrice.emit(this.viewTotalPrice)
-            this.firstPrice.emit(this.valueFirstPrice)
-            this.secondPrice.emit(this.valueSecondPrice)
+        this.viewTotalPrice = this.calculatePrice(1.02);
         break;
       default:
         break;
     }
   }
-}
 
+  calculatePrice(conversionFactor: number): number {
+    let totalPrice = 0;
+    let originalPriceTotal = 0; // Nuevo valor para almacenar el precio original total
+
+    this.journeyValue.flight.forEach((flight, index) => {
+      const originalPrice = this.flightList[index].price;
+      flight.prices = originalPrice * conversionFactor;
+      totalPrice += flight.prices;
+      originalPriceTotal += originalPrice;
+    });
+
+    // Actualiza el precio total original
+    this.journeyValue.price = originalPriceTotal * conversionFactor;
+
+    return totalPrice;
+  }
+}

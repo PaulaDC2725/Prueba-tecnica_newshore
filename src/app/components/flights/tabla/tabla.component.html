@@ -1,7 +1,7 @@
 <div class="content">
   <!-- tabla general con la información principal del destino y origen deseados -->
-  <div class="tablas">
-    <table class="mat-elevation-z8 tabla1" id="tabla">
+  <div class="table-responsive">
+    <table class="table table-bordered" id="tabla1">
       <tr>
         <th>Origen</th>
         <td>{{journey.origin}}</td>
@@ -12,21 +12,19 @@
       </tr>
       <tr>
         <th>Precio</th>
-        <td>{{totalPrice}}</td>
+        <td>{{journey.price}}</td>
       </tr>
-      <tr *ngIf="!journey.flight[1]">
-        <th>Numero de vuelo</th>
+      <tr *ngIf="journey.flight.length === 1">
+        <th>Número de vuelo</th>
         <td>{{journey.flight[0].transport.flightNumber}}</td>
       </tr>
     </table>
     <!-- fin tabla -->
     <!-- Segunda tabla en el caso de haber más de un vuelo -->
-    <table *ngIf="journey.flight[1]" class="mat-elevation-z8" id="tabla">
+    <table *ngIf="journey.flight.length > 1" class="table table-bordered" id="tabla2">
       <thead>
         <tr>
-          <th>
-            #
-          </th>
+          <th>#</th>
           <th>Punto de partida</th>
           <th>Punto de llegada</th>
           <th>Precio</th>
@@ -34,10 +32,10 @@
           <th>Número del vuelo</th>
         </tr>
       </thead>
-      <tbody *ngIf="journey.flight[1]">
+      <tbody *ngIf="journey.flight.length > 1">
         <tr *ngFor="let data of journey.flight; let i = index">
           <td style="font-weight: bold;">
-            {{i == 0 ? 'Primer vuelo: ': 'Segundo vuelo: '}}
+            {{i + 1}}
           </td>
           <td>
             {{data.origin}}
@@ -46,7 +44,7 @@
             {{data.destination}}
           </td>
           <td>
-            {{i == 0 ? firstPrice : secondPrice}}
+            {{data.prices}}
           </td>
           <td>
             {{data.transport.flightCarrier}}

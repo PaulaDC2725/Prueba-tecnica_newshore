@@ -1,50 +1,37 @@
-<!-- Div header-->
-<div class="header col-xs-12 col-sm-12 col-md-12 col-lg-12 col-12" id="header">
-  <img
-    src="../../../assets//img/851eyhmAs9vvzzBlC0kvX6gNu8u1628832207734_200x200.png"
-    alt="logo Newshore"
-  />
+<!-- Div header -->
+<div class="header col-12" id="header">
+  <img src="../../../assets/img/851eyhmAs9vvzzBlC0kvX6gNu8u1628832207734_200x200.png" alt="logo Newshore" />
 </div>
 <!-- fin div header -->
-<div class="pagina" id="pagina">
-  <!-- implementación mat-accordion  -->
-  <mat-acordion id="accordion">
+
+<div class="pagina" id="pagina"  #miComponente>
+  <!-- implementación mat-accordion -->
+  <mat-accordion id="accordion" [multi]="true">
     <!-- apartado para el formulario de consulta -->
     <mat-expansion-panel [togglePosition]="'before'" [expanded]="true">
-      <mat-expansion-panel-header
-        [ngClass]="{
+      <mat-expansion-panel-header [ngClass]="{
           'bg-success': form.valid && !invalidFunction,
           'bg-warning': form.invalid,
           'bg-danger': invalidFunction
-        }"
-      >
+        }">
         <mat-panel-title> Formulario búsqueda </mat-panel-title>
         <i class="fa-solid fa-check"></i>
       </mat-expansion-panel-header>
-
-      <app-formulario (viewInfo)="getViewInfo($event)" (journey)="getJourney($event)" (totalPrice)="getTotalPrice($event)" (firstPrice)="getFirstPrice($event)" (secondPrice)="getSecondPrice($event)"></app-formulario>
-      {{ viewInfo }}
+      <mat-expansion-panel-content class="responsive-content" #accordeon>
+        <app-formulario (viewInfo)="getViewInfo($event)" (journey)="getJourney($event)"></app-formulario>
+      </mat-expansion-panel-content>
       <!-- fin apartado formulario de consulta -->
     </mat-expansion-panel>
-    <mat-expansion-panel
-      [togglePosition]="'before'"
-      *ngIf="journey && viewInfo"
-      [expanded]="true"
-      id="accordionPanel"
-    >
+    <mat-expansion-panel [togglePosition]="'before'" *ngIf="journey && viewInfo" [expanded]="true" id="accordionPanel">
       <mat-expansion-panel-header>
         <mat-panel-title> Información de vuelo </mat-panel-title>
         <i class="fa-solid fa-check"></i>
       </mat-expansion-panel-header>
-      <app-tabla [journey]="journey" [viewInfo]="viewInfo" [totalPrice]="totalPrice" [firstPrice]="firstPrice" [secondPrice]="secondPrice"></app-tabla>
-    </mat-expansion-panel>
-  </mat-acordion>
-  <!-- fin implementacion mat-accordion -->
-</div>
+      <mat-expansion-panel-content class="responsive-content"#accordeon>
+        <app-tabla [journey]="journey" [viewInfo]="viewInfo"></app-tabla>
 
-<div class="footer col-xs-12 col-sm-12 col-md-12 col-lg-12 col-12" id="footer">
-  <img
-    src="../../../assets//img/851eyhmAs9vvzzBlC0kvX6gNu8u1628832207734_200x200.png"
-    alt="logo Newshore"
-  />
+      </mat-expansion-panel-content>
+    </mat-expansion-panel>
+  </mat-accordion>
+  <!-- fin implementacion mat-accordion -->
 </div>

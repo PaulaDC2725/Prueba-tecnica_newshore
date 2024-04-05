@@ -22,9 +22,6 @@ export class FlightsComponent implements OnInit {
   @Input()departureStations: string[] = [];
 
   viewInfo: boolean = false;
-  totalPrice: number = 0;
-  firstPrice: number = 0;
-  secondPrice: number = 0;
 
   constructor(private componenteFormulario: FormularioComponent) {
     this.invalidFunction= this.componenteFormulario.invalidField();
@@ -45,18 +42,7 @@ export class FlightsComponent implements OnInit {
     this.journey = valor;
     console.log(this.journey)
   }
-  getTotalPrice(valor: number){
-    this.totalPrice = valor;
-    console.log(this.totalPrice);
-  }
-  getFirstPrice(valor: number){
-    this.firstPrice = valor;
-    console.log(this.firstPrice);
-  }
-  getSecondPrice(valor: number){
-    this.secondPrice = valor;
-    console.log(this.secondPrice);
-  }
+
   //
   @HostListener('window:resize', ['$event']) Resolucion() {
     setTimeout(() => {
